@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stress Level Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+            background-color: #f5f5f5;
+        }
+        main {
+            flex: 1 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+        }
+        .bento-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .input-card {
+            width: calc(33.33% - 20px);
+            min-width: 250px;
+        }
+        .result-card {
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        #result {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="container">
+            <h1>Stress Level Detection</h1>
+            <div class="bento-box">
+                <div class="card input-card">
+                    <div class="card-content">
+                        <span class="card-title">Input Values</span>
+                        <form id="stress-form">
+                            <div class="input-field">
+                                <input type="number" step="any" id="MEAN_RR" required>
+                                <label for="MEAN_RR">MEAN_RR</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="number" step="any" id="RMSSD" required>
+                                <label for="RMSSD">RMSSD</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="number" step="any" id="pNN25" required>
+                                <label for="pNN25">pNN25</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="number" step="any" id="pNN50" required>
+                                <label for="pNN50">pNN50</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="number" step="any" id="LF" required>
+                                <label for="LF">LF</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="number" step="any" id="HF" required>
+                                <label for="HF">HF</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="number" step="any" id="LF_HF" required>
+                                <label for="LF_HF">LF_HF</label>
+                            </div>
+                            <button class="btn waves-effect waves-light" type="submit">Predict</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card result-card">
+                    <div class="card-content">
+                        <span class="card-title">Prediction Result</span>
+                        <p id="result">Enter values and click Predict to see the result.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('stress-form');
+            const result = document.getElementById('result');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = {};
+                ['MEAN_RR', 'RMSSD', 'pNN25', 'pNN50', 'LF', 'HF', 'LF_HF'].forEach(feature => {
+                    formData[feature] = document.getElementById(feature).value;
+                });
+
+                fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const color = data.prediction === "No Stress" ? "green" : "red";
+                    result.innerHTML = `Predicted Stress Level: <span style="color: ${color}">${data.prediction}</span>`;
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    result.textContent = 'An error occurred while predicting.';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
