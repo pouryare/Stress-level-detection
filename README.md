@@ -12,7 +12,7 @@ There are two ways to use this project: training the model yourself using the pr
 
 1. Clone this repository:
    ```
-   git clone https://github.com/pouryare/stress-level-detection.git
+   git clone https://github.com/pouryare/Stress-level-detection.git
    cd stress-level-detection
    ```
 
